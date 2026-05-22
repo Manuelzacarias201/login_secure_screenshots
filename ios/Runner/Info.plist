@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Esta aplicación requiere acceso a la ubicación para verificar la integridad del dispositivo y prevenir fraudes por suplantación de identidad geográfica (Fake GPS).</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Esta aplicación requiere acceso a la ubicación para verificar la integridad del dispositivo y prevenir fraudes por suplantación de identidad geográfica (Fake GPS).</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Esta aplicación requiere acceso a la ubicación para verificar la integridad del dispositivo y prevenir fraudes por suplantación de identidad geográfica (Fake GPS).</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -40,7 +46,7 @@
 					<key>UISceneConfigurationName</key>
 					<string>flutter</string>
 					<key>UISceneDelegateClassName</key>
-					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<string>FlutterSceneDelegate</string>
 					<key>UISceneStoryboardFile</key>
 					<string>Main</string>
 				</dict>

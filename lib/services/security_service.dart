@@ -1,20 +1,50 @@
 import 'package:screen_protector/screen_protector.dart';
+import 'package:trust_location/trust_location.dart';
+import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 
-/// Servicio encargado de gestionar la seguridad de la pantalla.
-/// Utiliza el paquete screen_protector para manejar las flags nativas
-/// tanto en Android (FLAG_SECURE) como en iOS (capas de seguridad).
+/// Servicio experto de seguridad integral con monitoreo constante.
 class SecurityService {
-  /// Activa todas las protecciones disponibles:
-  /// - Previene capturas de pantalla (imagen negra).
-  /// - Previene grabaciones de pantalla.
-  /// - Oculta el contenido en el selector de aplicaciones (multitarea).
+  
+  /// Activa protecciones contra capturas de pantalla (MASVS-PLATFORM-3).
   static Future<void> enableAllProtections() async {
-    // Evita capturas y grabaciones (en iOS la imagen resultará negra)
-    await ScreenProtector.preventScreenshotOn();
+    try {
+      await ScreenProtector.preventScreenshotOn();
+    } catch (_) {}
   }
 
-  /// Desactiva las protecciones.
+  /// Libera protecciones de pantalla.
   static Future<void> disableAllProtections() async {
-    await ScreenProtector.preventScreenshotOff();
+    try {
+      await ScreenProtector.preventScreenshotOff();
+    } catch (_) {}
+  }
+
+  /// Verifica permisos de ubicación de forma silenciosa para monitoreo en tiempo real.
+  static Future<bool> hasLocationPermissions() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      return (permission == LocationPermission.always || permission == LocationPermission.whileInUse);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// DETECCIÓN DE FAKE GPS EN TIEMPO REAL
+  /// Consulta la API nativa para saber si la ubicación actual es simulada.
+  static Future<bool> isUsingFakeGps() async {
+    // En iOS, el sistema no permite que apps de terceros detecten Mock Locations de otras apps.
+    // La protección en iOS se enfoca en Anti-Screenshot.
+    if (Platform.isIOS) return false;
+
+    try {
+      // trust_location interroga directamente al MockProvider de Android.
+      return await TrustLocation.isMockLocation;
+    } catch (e) {
+      return false;
+    }
   }
 }
