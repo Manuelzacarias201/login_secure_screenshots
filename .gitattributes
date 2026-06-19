@@ -1,0 +1,13 @@
+# Indicar a GitHub que ignore carpetas generadas para las estadísticas
+android/* linguist-vendored
+ios/* linguist-vendored
+web/* linguist-vendored
+build/* linguist-vendored
+
+# Si tienes archivos HTML específicos que quieres ignorar:
+*.html linguist-detectable=false
+*.js linguist-detectable=false
+*.css linguist-detectable=false
+
+# Forzar a que el proyecto se identifique principalmente como Dart
+*.dart linguist-detectable=true

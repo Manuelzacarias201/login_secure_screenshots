@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/security_service.dart';
+import '../services/notification_service.dart';
+import '../services/inactivity_service.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -36,6 +40,22 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue[900],
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_forever, color: Colors.white),
+            tooltip: "Probar Borrado de Datos",
+            onPressed: () async {
+              await SecurityService.wipeSensitiveData();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("¡Datos borrados manualmente!")),
+              );
+            },
+          )
+        ],
+      ),
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -106,7 +126,42 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20),
+                      // Nueva sección para el FCM Token
+                      if (NotificationService.fcmToken != null)
+                        GestureDetector(
+                          onLongPress: () {
+                            Clipboard.setData(ClipboardData(text: NotificationService.fcmToken!));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Token copiado al portapapeles")),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[400]!),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "FCM TOKEN (Mantén presionado para copiar):",
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  NotificationService.fcmToken!,
+                                  style: const TextStyle(fontSize: 9, fontFamily: 'monospace'),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _emailController,
                         decoration: InputDecoration(
@@ -143,8 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Iniciando sesión segura...")),
+                            // Simulación de Login Exitoso
+                            InactivityService.resetTimer();
+                            Navigator.pushReplacementNamed(
+                              context,
+                              '/home',
                             );
                           },
                           style: ElevatedButton.styleFrom(

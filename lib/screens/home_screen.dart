@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/security_service.dart';
+import '../services/inactivity_service.dart';
+import 'dart:async';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,11 +13,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Map<String, String?> _sensitiveData = {};
   bool _isLoading = true;
+  StreamSubscription? _updateSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+
+    // Escuchar actualizaciones (notificaciones o botones)
+    _updateSubscription = SecurityService.onDataUpdate.listen((_) {
+      _loadData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _updateSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -87,12 +101,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: Text(
                         "Envía una notificación de Firebase con 'action: wipe_data' para ver estos campos ponerse en rojo automáticamente."),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        setState(() => _isLoading = true);
+                        await SecurityService.forceUpdateData();
+                      },
+                      icon: const Icon(Icons.download),
+                      label: const Text("CARGAR DATOS DE NUEVO"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[700],
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
+                        InactivityService.stopTimer();
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
                       icon: const Icon(Icons.logout),
                       label: const Text("CERRAR SESIÓN"),
